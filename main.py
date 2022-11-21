@@ -2,6 +2,7 @@
 # 12/07/2022
 
 import math
+prepareTime = 2
 
 # Sets a value using input
 def set(val):
@@ -42,20 +43,34 @@ def solve(mat):
         mat[0][i] = mat[i][len(mat[0]) - 1]
     return mat[0]
 
-# Finds the x,y coordinations of the next point where the rocket will be in 2 seconds
+# Finds the x,y coordinations of the next point where the rocket will be in 2 seconds, returns the acceleration in x and y and the coordinations of the next point
 def nextPoint(points):
-    prepareTime = 2
     t1 = points[0][2]
     t2 = points[1][2]
     t3 = points[2][2]
     next = []
+    returns = []
     for i in range(2): # for x and then for y
         equations = [[t2 - t1, (t2 - t1) ** 2 / 2, points[1][i] - points[0][i]], [t3 - t1, (t3 - t1) ** 2 / 2, points[2][i] - points[0][i]]]
         [v, a, more] = solve(equations)
+        returns.append(a)
         point = points[0][i] + v * (prepareTime - t1) + a * (prepareTime - t1) ** 2 / 2
         next.append(point)
-    return next
+    returns.append(next)
+    return returns
+
+# Finds the velocity and angle for intercepting the rocket in a given point
+def intercept(returns):
+    next = returns[2]
+    velocities = []
+    for i in range(2): # for x and y
+        v = next[i] / prepareTime - returns[i] * prepareTime / 2
+        velocities.append(v)
+    velocity = math.sqrt((velocities[0]) ** 2 + (velocities[1]) ** 2)
+    angle = math.atan(velocities[1] / velocities[0]) * 180 / math.pi
+    return [velocity, angle]
 
 points = findPoints()
 next = nextPoint(points)
-print(next)
+ans = intercept(next)
+print("v = ", ans[0],", angle = ", ans[1])
